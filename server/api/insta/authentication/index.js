@@ -8,6 +8,6 @@ var router = express.Router();
 
 router.get('/', controller.index);
 router.get('/callback', controller.callback);
-router.get('/access_token', controller.getAccessToken);
+router.get('/self', controller.getUser);
 
 module.exports = router;

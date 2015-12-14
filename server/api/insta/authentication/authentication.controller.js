@@ -5,29 +5,24 @@
 
 'use strict';
 
+var ENV = {
+  development: {
+    CLIENT_ID: '966bb08683964afe8189ec6290b76af9',
+    CLIENT_SECRET: '24153fa5690e470a8a321113a0590b2a',
+    IP_URL: 'http://192.168.168.118:9000',
+    REDIRECT_URL: 'http://192.168.168.118:9000/insta/authentication/callback'
+  }
+}
+
 var url = require('url');
 var https = require('https');
 var querystring = require('querystring');
 
-var InstaClient = {
-  CLIENT_ID: '966bb08683964afe8189ec6290b76af9',
-  CLIENT_SECRET: '24153fa5690e470a8a321113a0590b2a'
-};
-
-var ip_url = 'http://192.168.168.118:9000';
-
-var instaAPI = require('instagram-node').instagram();
-
-instaAPI.use({
-  client_id: InstaClient.CLIENT_ID,
-  client_secret: InstaClient.CLIENT_SECRET
-});
-
-var redirect_uri = ip_url + '/insta/authentication/callback';
 
 var insta_response = null;
-
-var access_token = [];
+var access_token = null;
+var user = null;
+var users = {}
 
 // Initial response
 exports.index = function(req, res) {
@@ -41,10 +36,10 @@ exports.callback = function(req, res) {
 
 
   var post_data = querystring.stringify({
-    client_id: InstaClient.CLIENT_ID,
-    client_secret: InstaClient.CLIENT_SECRET,
+    client_id: ENV.development.CLIENT_ID,
+    client_secret: ENV.development.CLIENT_SECRET,
     grant_type: "authorization_code",
-    redirect_uri: redirect_uri,
+    redirect_uri: ENV.development.REDIRECT_URL,
     code: insta_response.code
   });
 
@@ -63,19 +58,22 @@ exports.callback = function(req, res) {
       res.setEncoding('utf8');
       res.on('data', function (chunk) {
         console.log('Response: ' + chunk);
-        access_token.push(chunk);
+        var chuckData = JSON.parse(chunk);
+
+        access_token = chuckData.access_token;
+        user = chuckData.user;
+        users[user.id] = user;
 
         self_res.redirect('index');
       });
   });
 
-  console.log(post_data)
   post_req.write(post_data);
   post_req.end();
 }
 
-exports.getAccessToken = function (req, res) {
+exports.getUser = function (req, res) {
   res.status(200).json({
-    'access_token': access_token
+    'user': user
   });
 }
