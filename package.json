@@ -23,7 +23,9 @@
     "express-jwt": "^3.0.0",
     "passport": "~0.3.0",
     "passport-local": "^1.0.0",
-    "serve-favicon": "^2.3.0"
+    "serve-favicon": "^2.3.0",
+    "instagram-node": "~0.5.8",
+    "cors": "~2.7.1 "
   },
   "devDependencies": {
     "autoprefixer": "^6.0.0",

@@ -22,8 +22,17 @@ if (config.seedDB) { require('./config/seed'); }
 // Setup server
 var app = express();
 var server = http.createServer(app);
+
+
 require('./config/express')(app);
 require('./routes')(app);
+
+app.all('*', function(req, res, next) {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'PUT, GET, POST, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type');
+  next();
+});
 
 // Start server
 function startServer() {

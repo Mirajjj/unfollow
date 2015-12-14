@@ -1,5 +1,14 @@
 'use strict';
 
+var ENV = {
+  development: {
+    CLIENT_ID: '966bb08683964afe8189ec6290b76af9',
+    CLIENT_SECRET: '24153fa5690e470a8a321113a0590b2a',
+    ip_url:'http://192.168.168.118:9000',
+    redirect_uri: 'http://192.168.168.118:9000/insta/authentication/callback'
+  }
+};
+
 angular.module('unfollowApp', [
   'ngCookies',
   'ngResource',
