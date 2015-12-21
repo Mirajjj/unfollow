@@ -8,6 +8,7 @@ var router = express.Router();
 
 router.get('/', controller.index);
 router.get('/callback', controller.callback);
-router.get('/self', controller.getUser);
+router.get('/self', controller.self);
+router.get('/unfollow', controller.unfollow);
 
 module.exports = router;

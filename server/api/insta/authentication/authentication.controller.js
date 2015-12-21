@@ -5,6 +5,8 @@
 
 'use strict';
 
+import  mgdb from './authentication.db';
+
 var ENV = {
   development: {
     CLIENT_ID: '966bb08683964afe8189ec6290b76af9',
@@ -64,6 +66,8 @@ exports.callback = function(req, res) {
         user = chuckData.user;
         users[user.id] = user;
 
+        mgdb.saveUser(user.id, access_token, user );
+
         self_res.redirect('index');
       });
   });
@@ -72,8 +76,46 @@ exports.callback = function(req, res) {
   post_req.end();
 }
 
-exports.getUser = function (req, res) {
-  res.status(200).json({
-    'user': user
+exports.self = function (req, res) {
+  if (user && user.id) { 
+    mgdb.getUser(user.id, function (user) {
+      res.status(200).json({
+        'user': user.data
+      });
+    })
+  } else {
+    res.status(200).json({
+        'user': null
+      });
+  }
+
+}
+
+exports.unfollow = function (req, res) {
+  var options = {
+        host: 'api.instagram.com',
+        path: '/v1/users/self/follows?access_token=' + access_token,
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      };
+
+  var request = https.get(options, function (res) {
+    // Buffer the body entirely for processing as a whole.
+  var bodyChunks = [];
+    res.on('data', function(chunk) {
+      // You can process streamed parts here...
+      bodyChunks.push(chunk);
+    }).on('end', function() {
+      var body = Buffer.concat(bodyChunks);
+      console.log(access_token)
+      JSON.parse(body).data.forEach(function (user_you_follow) {
+        console.log(user_you_follow.id)
+      });
+    });
+  });
+
+  request.on('error', function(e) {
+    console.log('ERROR: ' + e.message);
   });
 }

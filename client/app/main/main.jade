@@ -6,7 +6,7 @@ header#banner.hero-unit
     p.lead Kick-start your next web app with Angular Fullstack
     img(src='assets/images/yeoman.png', alt='I\'m Yeoman')
     .row  
-      button.btn.primary(ng-click='actions.unfollow()') Unfollow
+      button.btn.primary(ng-click='actions.unfollow()') {{isAuthenticated() ? 'Unfollow' : 'Authenticate'}}
 
 
 .container

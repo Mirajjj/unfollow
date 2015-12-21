@@ -23,8 +23,14 @@
 
     $scope.actions = {
       unfollow: function () {
-        InstagramAuthentication.authenticate();
+        InstagramAuthentication.isAuthenticated() ? 
+          InstagramAuthentication.unfollow() :
+          InstagramAuthentication.authenticate();
       }
+    };
+
+    $scope.isAuthenticated = function () {
+      return InstagramAuthentication.isAuthenticated();
     };
   }
 

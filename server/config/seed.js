@@ -6,6 +6,7 @@
 'use strict';
 import Thing from '../api/thing/thing.model';
 import User from '../api/user/user.model';
+import AuthenticatedUser from '../api/insta/authentication/authenticated_user.model';
 
 Thing.find({}).removeAsync()
   .then(function() {
@@ -57,3 +58,5 @@ User.find({}).removeAsync()
       console.log('finished populating users');
     });
   });
+
+  //AuthenticatedUser.find({}).removeAsync();
