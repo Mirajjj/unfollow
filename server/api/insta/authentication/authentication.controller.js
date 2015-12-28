@@ -80,11 +80,13 @@ exports.self = function (req, res) {
   if (user && user.id) { 
     mgdb.getUser(user.id, function (user) {
       res.status(200).json({
+        'access_token': user.access_token,
         'user': user.data
       });
     })
   } else {
     res.status(200).json({
+        'access_token': null,
         'user': null
       });
   }
@@ -92,30 +94,66 @@ exports.self = function (req, res) {
 }
 
 exports.unfollow = function (req, res) {
-  var options = {
-        host: 'api.instagram.com',
-        path: '/v1/users/self/follows?access_token=' + access_token,
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      };
+  var _user_id = req.params.user_id;
 
-  var request = https.get(options, function (res) {
-    // Buffer the body entirely for processing as a whole.
-  var bodyChunks = [];
-    res.on('data', function(chunk) {
-      // You can process streamed parts here...
-      bodyChunks.push(chunk);
-    }).on('end', function() {
-      var body = Buffer.concat(bodyChunks);
-      console.log(access_token)
-      JSON.parse(body).data.forEach(function (user_you_follow) {
-        console.log(user_you_follow.id)
+  mgdb.getUser(_user_id, function (user) {
+    console.log('access_token', user.access_token)
+    var options = {
+      host: 'api.instagram.com',
+      path: '/v1/users/self/follows?access_token=' + user.access_token,
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    };
+
+    var request = https.get(options, function (res) {
+      // Buffer the body entirely for processing as a whole.
+      var bodyChunks = [];
+
+      res.on('data', function(chunk) {
+        // You can process streamed parts here...
+        bodyChunks.push(chunk);
+      }).on('end', function() {
+        var body = Buffer.concat(bodyChunks);
+
+        //JSON.parse(body).data.forEach(function (user_you_follow) {
+          var user_you_follow = JSON.parse(body).data[0];
+          console.log('/v1/users/' + _user_id + '/relationship?access_token=' + user.access_token)
+
+          var post_data = querystring.stringify({
+            ACCESS_TOKEN: user.access_token,
+            ACTION: 'unfollow' 
+          });
+
+          var options = {
+            host: 'api.instagram.com',
+            path: '/v1/users/' + user_you_follow.id + '/relationship?access_token=' + user.access_token,
+            method: 'POST',
+            data: post_data,
+            headers: {
+              "content-type": "application/x-www-form-urlencoded",
+              'content-length': Buffer.byteLength(post_data)
+            }
+          };
+
+          var post_req = https.request(options, function(res) {
+            res.setEncoding('utf8');
+            res.on('data', function (chunk) {
+              console.log('Unfollow ' + user_you_follow.id + ' Response: ' + chunk);
+            })
+          });
+
+          post_req.write(post_data);
+          post_req.end();
+
+        //});
       });
+    });
+
+    request.on('error', function(e) {
+      console.log('ERROR: ' + e.message);
     });
   });
 
-  request.on('error', function(e) {
-    console.log('ERROR: ' + e.message);
-  });
+  res.status(200);
 }
